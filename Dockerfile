@@ -1,8 +1,8 @@
 FROM node:18-slim
 
-# Install dependencies
+# Install build tools for native modules
 RUN apt-get update && \
-    apt-get install -y git curl && \
+    apt-get install -y git curl python3 make g++ && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -12,17 +12,17 @@ WORKDIR /app
 RUN git clone https://github.com/overleaf/overleaf.git . && \
     git checkout main
 
-# Move into the web component
+# Move into web app directory
 WORKDIR /app/web
 
-# Install only the web app dependencies
+# Install Overleaf web dependencies
 RUN npm install
 
-# Use a safe user for OpenShift
+# Use non-root user for OpenShift compatibility
 USER node
 
-# Expose expected port
+# Expose port
 ENV PORT=80
 
-# Run Overleaf web service
+# Start Overleaf web
 CMD ["npm", "run", "start"]
