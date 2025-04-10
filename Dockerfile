@@ -1,26 +1,28 @@
 FROM node:18-slim
 
-# Install required system packages
+# Install dependencies
 RUN apt-get update && \
-    apt-get install -y build-essential git python-is-python3 texlive-full ghostscript imagemagick poppler-utils curl && \
+    apt-get install -y git curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
 
-# Clone Overleaf CE
+# Clone the Overleaf repo
 RUN git clone https://github.com/overleaf/overleaf.git . && \
     git checkout main
 
-# Install Overleaf dependencies
+# Move into the web component
+WORKDIR /app/web
+
+# Install only the web app dependencies
 RUN npm install
 
-# Set non-root user (OpenShift-safe)
-RUN useradd -m appuser
-USER appuser
+# Use a safe user for OpenShift
+USER node
 
-# Environment port
+# Expose expected port
 ENV PORT=80
 
-# Start Overleaf
-CMD ["npm", "start"]
+# Run Overleaf web service
+CMD ["npm", "run", "start"]
