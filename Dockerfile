@@ -18,11 +18,11 @@ WORKDIR /app/web
 # Install dependencies for the web component
 RUN npm install
 
-# Use non-root user for OpenShift compatibility
-USER node
+# ✅ OpenShift-compatible permissions fix
+RUN chgrp -R 0 /app && chmod -R g=u /app
 
-# Set default port
+# Default port
 ENV PORT=80
 
-# ✅ Start the web server directly
+# No USER statement — OpenShift will assign random UID
 CMD ["node", "server.js"]
